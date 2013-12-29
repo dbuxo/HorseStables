@@ -1,0 +1,20 @@
+name: HorseStables
+main: com.gmail.zant95.HorseStables.HorseStables
+version: 1.0.0
+author: zant95
+commands:
+   horsespawn:
+      aliases: [hs]
+   horsetoggle:
+      aliases: [ht]
+   horselist:
+      aliases: [hl]
+permissions:
+   horsestables.spawn:
+      default: op
+   horsestables.toggle:
+      default: op
+   horsestables.list:
+      default: true
+   horsestables.list.other:
+      default: op
