@@ -19,6 +19,7 @@ public final class Messages {
 		UNEXPECTED = FORMAT(FAILPREFIX + "Unexpected error."),
 		LOADED_HORSE = FORMAT(SUCESSPREFIX + "Your horse has been successfully &6loaded&2."),
 		SAVED_HORSE = FORMAT(SUCESSPREFIX + "Your horse has been successfully &6saved&2."),
+		DELETED_HORSE = FORMAT(SUCESSPREFIX + "The selected horse has been successfully &6deleted&2."),
 		SEPARATOR = FORMAT("&l=============================================");
 	
 	public final static String STABLE_LIST_TITLE(String stableName) {

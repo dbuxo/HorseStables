@@ -60,11 +60,31 @@ public final class CommandHandler implements CommandExecutor {
 			} else if (!(sender instanceof Player)) {
 				sender.sendMessage(Messages.ONLY_A_PLAYER);
 			} else if (args.length == 3) {
-				if (MemStorage.horses.containsKey(args[0]) &&
-					MemStorage.horses.get(args[0]).containsKey(args[1]) &&
-					MemStorage.horses.get(args[0]).get(args[1]).containsKey(args[2])
-				) {
+				if (HorseSearch.horseExists(args[0], args[1], args[2])) {
 					HorseManage.loadCustomHorse((Player)sender, args[0], args[1], args[2]);
+				} else {
+					sender.sendMessage(Messages.NOT_FOUND);
+				}
+			} else {
+				sender.sendMessage(Messages.BAD_SYNTAX);
+			}
+		}
+		
+		/* 
+		 * #############################################################
+		 * # Syntax: /horsedelete                                      #
+		 * #                        <stable> --> [Alphanumeric string] #
+		 * #                        <player> --> [Valid player name]   #
+		 * #                        <slot>   --> [Valid 0-15 integer]  #
+		 * #############################################################
+		 */
+		
+		if (command.getName().equalsIgnoreCase("horsedelete")) {
+			if (!sender.hasPermission("horsestables.delete")) {
+				sender.sendMessage(Messages.NO_PERMISSION);
+			} else if (args.length == 3) {
+				if (HorseSearch.horseExists(args[0], args[1], args[2])) {
+					HorseManage.deleteCustomHorse(sender, args[0], args[1], args[2]);
 				} else {
 					sender.sendMessage(Messages.NOT_FOUND);
 				}
@@ -116,10 +136,7 @@ public final class CommandHandler implements CommandExecutor {
 				 * ###############
 				 */
 				
-				if (MemStorage.horses.containsKey(args[0]) &&
-					MemStorage.horses.get(args[0]).containsKey(args[1]) &&
-					MemStorage.horses.get(args[0]).get(args[1]).containsKey(args[2])
-				) {
+				if (HorseSearch.horseExists(args[0], args[1], args[2])) {
 					if (player.isInsideVehicle()) {
 						if (player.getVehicle() instanceof Horse) player.sendMessage(Messages.OCCUPIED_SLOT);
 						else player.sendMessage(Messages.LEAVE_VEHICLE);
@@ -170,19 +187,19 @@ public final class CommandHandler implements CommandExecutor {
 				} else if (args[0].equalsIgnoreCase("stable")) {
 					
 					/* Print stable horses */
-					HorseManage.asyncSearchAndPrintStable(sender, args[1]);
+					HorseSearch.asyncSearchAndPrintStable(sender, args[1]);
 					/* ------------------- */
 					
 				} else if (args[0].equalsIgnoreCase("player")) {
 					
 					/* Print player horses */
-					HorseManage.asyncSearchAndPrintPlayer(sender, args[1]);
+					HorseSearch.asyncSearchAndPrintPlayer(sender, args[1]);
 					/* ------------------- */
 					
 				} else if (args[0].equalsIgnoreCase("tamer")) {
 					
 					/* Print tamer horses */
-					HorseManage.asyncSearchAndPrintTamer(sender, args[1]);
+					HorseSearch.asyncSearchAndPrintTamer(sender, args[1]);
 					/* ------------------ */
 					
 				} else {
@@ -191,13 +208,13 @@ public final class CommandHandler implements CommandExecutor {
 			} else if (args.length == 0 && sender instanceof Player) {
 				
 				/* Print own horses */
-				HorseManage.asyncSearchAndPrintPlayer(sender, sender.getName());
+				HorseSearch.asyncSearchAndPrintPlayer(sender, sender.getName());
 				/* ---------------- */
 				
 			} else if (args.length == 1 && args[0].equalsIgnoreCase("tamed")) {
 				
 				/* Print own tamed horses */
-				HorseManage.asyncSearchAndPrintTamer(sender, sender.getName());
+				HorseSearch.asyncSearchAndPrintTamer(sender, sender.getName());
 				/* ---------------------- */
 				
 			} else {
@@ -227,7 +244,9 @@ final class HorseManage {
 			horse.setCustomNameVisible			((boolean)			serializedHorse[5]);
 			horse.setDomestication				((int)				serializedHorse[6]);
 			horse.setFireTicks					((int)				serializedHorse[7]);
-			horse.setHealth						((double)			serializedHorse[8]);
+			horse.setHealth						(
+					(double)serializedHorse[8] > 53 ? 53 : (double)serializedHorse[8]
+			);
 			horse.setJumpStrength				((double)			serializedHorse[9]);
 			horse.setMaxDomestication			((int)				serializedHorse[10]);
 			horse.setMaxHealth					((double)			serializedHorse[11]);
@@ -247,7 +266,7 @@ final class HorseManage {
 			horse.setTamed						((boolean)			serializedHorse[19]);
 			horse.setTicksLived					((int)				serializedHorse[20]);
 			horse.setVariant					((Variant)			serializedHorse[21]);
-			
+						
 			/*  Incomplete Bukkit API */
 			((EntityInsentient)((CraftLivingEntity)horse).getHandle()).getAttributeInstance(GenericAttributes.d).setValue((double)serializedHorse[22]);
 			/* ---------------------- */
@@ -268,13 +287,7 @@ final class HorseManage {
 			/* Delete horse from HashMap and mount player on the spawned horse */
 			horse.setPassenger(player);
 			
-			MemStorage.horses.get(stableName).get(playerName).remove(slotNumber);
-			if (MemStorage.horses.get(stableName).get(playerName).isEmpty()) {
-				MemStorage.horses.get(stableName).remove(playerName);
-				if (MemStorage.horses.get(stableName).isEmpty()) {
-					MemStorage.horses.remove(stableName);
-				}
-			}
+			deleteCustomHorse(stableName, playerName, slotNumber);
 			/* --------------------------------------------------------------- */
 			
 			/* Save HashMap async */
@@ -364,6 +377,42 @@ final class HorseManage {
 			
 			player.sendMessage(Messages.UNEXPECTED);
 		}
+	}
+	
+	final static void deleteCustomHorse(final CommandSender sender, final String stableName, final String playerName, final String slotNumber) {
+		try {
+			deleteCustomHorse(stableName, playerName, slotNumber);
+			
+			sender.sendMessage(Messages.DELETED_HORSE);
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+			sender.sendMessage(Messages.UNEXPECTED);
+		}
+	}
+	
+	final static void deleteCustomHorse(final String stableName, final String playerName, final String slotNumber) throws Exception {
+		MemStorage.horses.get(stableName).get(playerName).remove(slotNumber);
+		if (MemStorage.horses.get(stableName).get(playerName).isEmpty()) {
+			MemStorage.horses.get(stableName).remove(playerName);
+			if (MemStorage.horses.get(stableName).isEmpty()) {
+				MemStorage.horses.remove(stableName);
+			}
+		}
+		
+		/* Save HashMap async */
+		DiskStorage.asyncSaveHorses();
+		/* ------------------ */
+	}	
+}
+
+final class HorseSearch {
+	final static boolean horseExists(final String stableName, final String playerName, final String slotNumber) {
+		return (
+			MemStorage.horses.containsKey(stableName) &&
+			MemStorage.horses.get(stableName).containsKey(playerName) &&
+			MemStorage.horses.get(stableName).get(playerName).containsKey(slotNumber)
+		);
 	}
 	
 	final static void asyncSearchAndPrintStable(final CommandSender sender, final String stableName) {

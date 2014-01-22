@@ -20,6 +20,7 @@ public class HorseStables extends JavaPlugin {
 		
 		//Implement commands
 		this.getCommand("horsespawn").setExecutor(new CommandHandler(this));
+		this.getCommand("horsedelete").setExecutor(new CommandHandler(this));
 		this.getCommand("horsetoggle").setExecutor(new CommandHandler(this));
 		this.getCommand("horselist").setExecutor(new CommandHandler(this));
 		
