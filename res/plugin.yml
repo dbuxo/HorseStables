@@ -1,6 +1,6 @@
 name: HorseStables
 main: com.gmail.zant95.HorseStables.HorseStables
-version: 1.1.0
+version: 1.1.1
 author: zant95
 commands:
    horsespawn:

@@ -22,6 +22,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.HorseInventory;
 import org.bukkit.inventory.ItemStack;
 
+import org.bukkit.potion.PotionEffect;
+
 /* 
  * I will need to change these values ​​with each version of Minecraft
  * because of the Bukkit API is incomplete :(
@@ -31,6 +33,7 @@ import net.minecraft.server.v1_7_R1.GenericAttributes;
 
 import org.bukkit.craftbukkit.v1_7_R1.entity.CraftLivingEntity;
 /* --------------------------------------------------------------- */
+
 
 import com.gmail.zant95.HorseStables.Locale.Messages;
 import com.gmail.zant95.HorseStables.Storage.DiskStorage;
@@ -313,6 +316,9 @@ final class HorseManage {
 			
 			/* Serialize horse to object */
 			Horse horse = (Horse)player.getVehicle();
+			
+			/* Remove all potion effects */
+			for (PotionEffect effect : horse.getActivePotionEffects()) horse.removePotionEffect(effect.getType());
 			
 			Object[] serializedHorse = new Object[24];
 				serializedHorse[0] = horse.getAge();
