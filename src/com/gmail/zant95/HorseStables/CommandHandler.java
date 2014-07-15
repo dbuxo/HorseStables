@@ -247,12 +247,12 @@ final class HorseManage {
 			horse.setCustomNameVisible			((boolean)			serializedHorse[5]);
 			horse.setDomestication				((int)				serializedHorse[6]);
 			horse.setFireTicks					((int)				serializedHorse[7]);
+			horse.setMaxHealth					((double)			serializedHorse[11]);
 			horse.setHealth						(
-					(double)serializedHorse[8] > 53 ? 53 : (double)serializedHorse[8]
+					Math.min(horse.getMaxHealth(),(double)serializedHorse[8] > 53 ? 53 : (double)serializedHorse[8])
 			);
 			horse.setJumpStrength				((double)			serializedHorse[9]);
 			horse.setMaxDomestication			((int)				serializedHorse[10]);
-			horse.setMaxHealth					((double)			serializedHorse[11]);
 			horse.setMaximumAir					((int)				serializedHorse[12]);
 			horse.setMaximumNoDamageTicks		((int)				serializedHorse[13]);
 			horse.setNoDamageTicks				((int)				serializedHorse[14]);
