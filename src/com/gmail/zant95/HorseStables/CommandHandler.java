@@ -28,10 +28,10 @@ import org.bukkit.potion.PotionEffect;
  * I will need to change these values ​​with each version of Minecraft
  * because of the Bukkit API is incomplete :(
  */
-import net.minecraft.server.v1_8_R1.EntityInsentient;
-import net.minecraft.server.v1_8_R1.GenericAttributes;
+import net.minecraft.server.v1_8_R3.EntityInsentient;
+import net.minecraft.server.v1_8_R3.GenericAttributes;
 
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 /* --------------------------------------------------------------- */
 
 
@@ -271,7 +271,7 @@ final class HorseManage {
 			horse.setVariant					((Variant)			serializedHorse[21]);
 						
 			/*  Incomplete Bukkit API */
-			((EntityInsentient)((CraftLivingEntity)horse).getHandle()).getAttributeInstance(GenericAttributes.d).setValue((double)serializedHorse[22]);
+			((EntityInsentient)((CraftLivingEntity)horse).getHandle()).getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue((double)serializedHorse[22]);
 			/* ---------------------- */
 			
 			HorseInventory horseInventory = horse.getInventory();
@@ -345,7 +345,7 @@ final class HorseManage {
 				serializedHorse[21] = horse.getVariant();
 				
 				/*  Incomplete Bukkit API */
-				serializedHorse[22] = ((EntityInsentient)((CraftLivingEntity)horse).getHandle()).getAttributeInstance(GenericAttributes.d).getValue();
+				serializedHorse[22] = ((EntityInsentient)((CraftLivingEntity)horse).getHandle()).getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).getValue();
 				/* ---------------------- */
 				
 				serializedHorse[23] = SerializeItemStackList.serializeItemStackList(horse.getInventory().getContents());
